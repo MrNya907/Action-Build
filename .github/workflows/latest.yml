@@ -175,6 +175,13 @@ jobs:
             libncurses-dev liblz4-tool zlib1g-dev \
             libxml2-utils rsync unzip
 
+      - name: Setup rust toolchains
+        run: |
+          rustup default nightly
+          rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+          rustup component add rust-src llvm-tools-preview
+          rustup update
+          
       - name: Restore Ccache
         uses: actions/cache@v3
         with:
@@ -532,11 +539,8 @@ jobs:
           # 可选清理 ccache 缓存（不清理可注释）
           # ccache -C
 
-          # 配置内核
-          make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
-
-          # 构建内核
-          make -j$(nproc --all) O=out $MAKE_ARGS
+          export RUSTC=$(which rustc)
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnuabeihf- CC=clang LD=ld.lld HOSTCC=clang HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
 
           # 显示 ccache 统计信息
           ccache -s
