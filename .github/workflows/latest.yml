@@ -524,7 +524,7 @@ jobs:
           export CC="ccache clang"
 
           # 安装依赖工具
-          sudo apt install -y libelf-dev ccache
+          sudo apt-get install curl bison flex make binutils dwarves git lld pahole zip perl make gcc python3 python-is-python3 bc libssl-dev libelf-dev ccache -y
 
           cd kernel_workspace/kernel_platform/common
 
