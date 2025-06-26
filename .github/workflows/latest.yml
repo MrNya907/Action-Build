@@ -525,12 +525,6 @@ jobs:
 
           cd kernel_workspace/kernel_platform/common
 
-          # 拼接构建参数
-          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-            RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
-            PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
-            LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
-
           # 如果是 5.10，添加 LLVM_IAS=1
           if [[ "$USE_LLVM_IAS" == "true" ]]; then
             MAKE_ARGS="LLVM_IAS=1 $MAKE_ARGS"
@@ -538,9 +532,8 @@ jobs:
 
           # 可选清理 ccache 缓存（不清理可注释）
           # ccache -C
-
-          export RUSTC=$(which rustc)
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnuabeihf- CC=clang LD=ld.lld HOSTCC=clang HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
+     
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnuabeihf- CC=clang LD=ld.lld HOSTCC=clang RUSTC=$(which rustc) HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all
 
           # 显示 ccache 统计信息
           ccache -s
