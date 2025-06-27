@@ -152,26 +152,21 @@ jobs:
           # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           # rm -rf kernel_platform/common
           if [ "${{ github.event.inputs.FEIL }}" = "oneplus_13t" ]; then
-          git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.2_oneplus_13t common
-          cd common/
-          # git reset --hard 10d21374f7e29ee7717b07f1ccdd625855ed7911
-          rm -rf .git
-          cd  ..
+              git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.2_oneplus_13t common
+              cd common/
+              # git reset --hard 10d21374f7e29ee7717b07f1ccdd625855ed7911
+              rm -rf .git
+              cd  ..
           fi
           
           if [ "${{ github.event.inputs.FEIL }}" = "oneplus_13" ]; then
-          git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
-          cd common/
-          # git reset --hard f9c1a38
-          rm -rf .git
-          cd  ..
+              git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
+              cd common/
+              # git reset --hard f9c1a38
+              rm -rf .git
+              cd  ..
           fi
-
-         
-          # cp -rf my_op/* kernel_platform/common
-          # cp -r ./*patch kernel_platform/common
           
-          # cp -rf my_op/* common/
           cp -r ./*patch common/
           
           cd  ..
