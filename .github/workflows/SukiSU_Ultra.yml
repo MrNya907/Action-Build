@@ -429,6 +429,16 @@ jobs:
           sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$CONFIG_FILE"
           echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$CONFIG_FILE"
           
+          # ECN配置*
+          echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
+          echo "CONFIG_TCP_ECN=y" >> "$CONFIG_FILE"
+          echo "CONFIG_IPV6_ECN=y" >> "$CONFIG_FILE"
+          echo "CONFIG_IP_NF_TARGET_ECN=y" >> "$CONFIG_FILE"
+
+          # TMPFS配置*
+          echo "CONFIG_TMPFS_XATTR=y" >> "$CONFIG_FILE"
+          echo "CONFIG_TMPFS_POSIX_ACL=y" >> "$CONFIG_FILE"
+
           # SukiSU Ultra config
           echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
           echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
