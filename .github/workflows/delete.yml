@@ -13,8 +13,9 @@ on:
         required: true
         default: 'Build OnePlus_SukiSU Ultra All'
         options:
-          - SukiSU_Ultra
-          - ksun_build          
+          - Build OnePlus_SukiSU Ultra All
+          - KernelSU-Next build
+          - 全功能构建
       count:
         description: '最多清理的运行次数'
         required: false
