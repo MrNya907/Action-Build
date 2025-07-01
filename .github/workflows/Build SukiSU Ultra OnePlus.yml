@@ -6,7 +6,7 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_ace2_pro_v
+        default: oneplus_13
         options:
           - oneplus_nord_ce4_v
           - oneplus_ace_3v_v
@@ -281,8 +281,8 @@ jobs:
             chmod +x "$path"
           done
 
-          git add -A
-          git commit -m "Custom suffix & removed -dirty"
+          # git add -A
+          # git commit -m "Custom suffix & removed -dirty"
 
       # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Custom Kernel Random Suffix if empty
@@ -331,8 +331,8 @@ jobs:
             chmod +x "$path"
           done
 
-          git add -A
-          git commit -m "Random suffix & remove -dirty"
+          # git add -A
+          # git commit -m "Random suffix & remove -dirty"
 
       - name: Download kernel-manifest
         id: fetch_manifest
