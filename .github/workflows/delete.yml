@@ -17,6 +17,7 @@ on:
           - KernelSU-Next build
           - 全功能构建
           - SukiSU Ultra Susfs
+          - Origin Build
       count:
         description: '最多清理的运行次数'
         required: false
