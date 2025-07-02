@@ -371,8 +371,8 @@ jobs:
           
           cd ./common
           patch -p1 < 50_add_susfs_in_gki-android15-6.6.patch || true
-          wget https://github.com/ShirkNeko/susfs4ksu/raw/gki-android15-6.6/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch
-          patch -p1 < 10_enable_susfs_for_ksu.patch
+          # wget https://github.com/ShirkNeko/susfs4ksu/raw/gki-android15-6.6/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch
+          # patch -p1 < 10_enable_susfs_for_ksu.patch
 
       - name: Apply Hide Stuff Patches
         run: |
