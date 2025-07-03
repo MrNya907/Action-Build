@@ -427,7 +427,10 @@ jobs:
           echo "CONFIG_DEFAULT_CUBIC=n" >> "$CONFIG_FILE"
           
           sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$CONFIG_FILE"
-          echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$CONFIG_FILE"          
+          
+          echo "CONFIG_MQ_IOSCHED_SSG=y" >> "$CONFIG_FILE"
+          echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
           
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
