@@ -15,7 +15,7 @@ on:
         options:
           - Build OnePlus_SukiSU Ultra All
           - KernelSU-Next build
-          - 全功能构建
+          - SukiSU Ultra Susfs_nonkpm
           - SukiSU Ultra Susfs
           - Origin Build
       count:
