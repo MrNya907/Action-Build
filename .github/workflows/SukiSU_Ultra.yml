@@ -9,7 +9,7 @@ on:
         default: sm8750
         options:
           - sm8750
-      FEIL:
+      FILE:
         type: choice
         description: "配置文件"
         required: true
@@ -124,7 +124,7 @@ jobs:
       - name: Show selected inputs debug
         run: |
           echo "Selected CPU: ${{ github.event.inputs.CPU }}"
-          echo "Selected FEIL: ${{ github.event.inputs.FEIL }}"
+          echo "Selected FILE: ${{ github.event.inputs.FILE }}"
           echo "Selected CPUD: ${{ github.event.inputs.CPUD }}"
           echo "Selected ANDROID_VERSION: ${{ github.event.inputs.ANDROID_VERSION }}"
           echo "Selected KERNEL_VERSION: ${{ github.event.inputs.KERNEL_VERSION }}"
@@ -147,11 +147,11 @@ jobs:
           wget https://github.com/reigadegr/Action-Build/raw/gki_official/fengchi.patch
           wget https://github.com/reigadegr/Action-Build/raw/suki/black_module.patch
           cat black_module.patch
-          # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FEIL }}.xml --depth=1
+          # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ github.event.inputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           # repo init -u https://android.googlesource.com/kernel/manifest.git -b common-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }} -m default.xml --depth=1                  
           # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           # rm -rf kernel_platform/common
-          if [ "${{ github.event.inputs.FEIL }}" = "oneplus_13t" ]; then
+          if [ "${{ github.event.inputs.FILE }}" = "oneplus_13t" ]; then
               git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.2_oneplus_13t common
               cd common/
               # git reset --hard 10d21374f7e29ee7717b07f1ccdd625855ed7911
@@ -159,7 +159,7 @@ jobs:
               cd  ..
           fi
           
-          if [ "${{ github.event.inputs.FEIL }}" = "oneplus_13" ]; then
+          if [ "${{ github.event.inputs.FILE }}" = "oneplus_13" ]; then
               git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
               cd common/
               # git reset --hard f9c1a38
@@ -616,27 +616,27 @@ jobs:
         run: |
           echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}" >> $GITHUB_OUTPUT
 
-      - name: Auto map FEIL to Android version by manifest
-        id: feil_clean
+      - name: Auto map FILE to Android version by manifest
+        id: file_clean
         run: |
-          feil="${{ github.event.inputs.FEIL }}"
+          file="${{ github.event.inputs.FILE }}"
           cpu="${{ github.event.inputs.CPU }}"
-          xml=".repo/manifests/${feil}.xml"
+          xml=".repo/manifests/${file}.xml"
 
           if [ ! -f "$xml" ]; then
             echo "Manifest $xml not found, attempting to download from branch oneplus/$cpu..."
             mkdir -p .repo/manifests
             git clone --depth=1 --branch oneplus/$cpu https://github.com/OnePlusOSS/kernel_manifest.git repo_tmp || {
               echo "Failed to clone branch oneplus/$cpu"
-              echo "value=${feil}_AndroidUnknown" >> "$GITHUB_OUTPUT"
+              echo "value=${file}_AndroidUnknown" >> "$GITHUB_OUTPUT"
               exit 0
             }
 
-            if [ -f "repo_tmp/${feil}.xml" ]; then
-              mv "repo_tmp/${feil}.xml" "$xml"
+            if [ -f "repo_tmp/${file}.xml" ]; then
+              mv "repo_tmp/${file}.xml" "$xml"
             else
-              echo "Manifest file ${feil}.xml not found in branch oneplus/$cpu"
-              echo "value=${feil}_AndroidUnknown" >> "$GITHUB_OUTPUT"
+              echo "Manifest file ${file}.xml not found in branch oneplus/$cpu"
+              echo "value=${file}_AndroidUnknown" >> "$GITHUB_OUTPUT"
               rm -rf repo_tmp
               exit 0
             fi
@@ -646,7 +646,7 @@ jobs:
           echo "Manifest $xml found."
 
           # 去掉末尾的 _x（只删一次）
-          feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
+          file_base=$(echo "$file" | sed -E 's/_[a-z]$//')
 
           # 提取 revision 并解析 Android 版本
           revision_full=$(grep -oP '<project[^>]*name="android_kernel[^"]*"[^>]*revision="\K[^"]+' "$xml" | head -n1 || true)
@@ -654,19 +654,19 @@ jobs:
           if [ -n "$revision_full" ]; then
             android_ver=$(echo "$revision_full" | grep -oP '_v?_?\K([0-9]+\.[0-9]+(?:\.[0-9]+)?)' || true)
             if [ -n "$android_ver" ]; then
-              clean_feil="${feil_base}_Android${android_ver}"
+              clean_file="${file_base}_Android${android_ver}"
             else
-              clean_feil="${feil_base}_AndroidUnknown"
+              clean_file="${file_base}_AndroidUnknown"
             fi
           else
-            clean_feil="${feil_base}_AndroidUnknown"
+            clean_file="${file_base}_AndroidUnknown"
           fi
 
-          echo "value=$clean_feil" >> "$GITHUB_OUTPUT"
+          echo "value=$clean_file" >> "$GITHUB_OUTPUT"
 
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.feil_clean.outputs.value }}_KPM${{ steps.suffix.outputs.value }}
+          name: AnyKernel3_SukiSUUltra_${{ env.KSUVER }}_${{ steps.file_clean.outputs.value }}_KPM${{ steps.suffix.outputs.value }}
           path: ./AnyKernel3/*
