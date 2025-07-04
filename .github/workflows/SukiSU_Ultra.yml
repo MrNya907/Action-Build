@@ -160,7 +160,7 @@ jobs:
           fi
           
           if [ "${{ github.event.inputs.FILE }}" = "oneplus_13" ]; then
-              git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b ssg6.6 common
+              git clone --depth 5 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
               cd common/
               # git reset --hard f9c1a38
               rm -rf .git
@@ -433,8 +433,8 @@ jobs:
           echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
 
           # echo "CONFIG_BLK_WBT=y" >> "$CONFIG_FILE"
-          echo "CONFIG_BLK_SEC_STATS=y" >> "$CONFIG_FILE"
-          echo "CONFIG_BLK_SEC_COMMON=y" >> "$CONFIG_FILE"
+          # echo "CONFIG_BLK_SEC_STATS=y" >> "$CONFIG_FILE"
+          # echo "CONFIG_BLK_SEC_COMMON=y" >> "$CONFIG_FILE"
           
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
