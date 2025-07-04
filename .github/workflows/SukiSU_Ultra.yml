@@ -432,6 +432,10 @@ jobs:
           echo "CONFIG_MQ_IOSCHED_SSG=y" >> "$CONFIG_FILE"
           echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
           echo "CONFIG_MQ_IOSCHED_SSG_WB=y" >> "$CONFIG_FILE"
+
+          echo "CONFIG_BLK_SEC_WB=y" >> "$CONFIG_FILE"
+          echo "CONFIG_BLK_SEC_STATS=y" >> "$CONFIG_FILE"
+          echo "CONFIG_BLK_SEC_COMMON=y" >> "$CONFIG_FILE"
           
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
