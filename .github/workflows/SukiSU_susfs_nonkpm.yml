@@ -74,7 +74,7 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
-      CCACHE_DIR: /home/runner/.ccache  
+      CCACHE_DIR: /home/runner/.ccache/nonkpm
       CCACHE_MAXSIZE: 8G
     steps:
       - name: Maximize build space
@@ -116,10 +116,10 @@ jobs:
       - name: Restore ccache
         uses: actions/cache@v3
         with:
-          path: /home/runner/.ccache
+          path: /home/runner/.ccache/nonkpm
           key: ccache-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
-            ccache-${{ runner.os }}-nonkpm
+            ccache-${{ runner.os }}-
                         
       - name: Show selected inputs debug
         run: |
