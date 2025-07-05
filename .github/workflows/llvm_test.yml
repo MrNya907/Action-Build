@@ -120,25 +120,6 @@ jobs:
           git config --global user.name "Numbersf"
           git config --global user.email "263623064@qq.com"
 
-      - name: Configure APTC
-        run: |
-          APT_CACHE_DIR="$HOME/apt-cache"
-          mkdir -p "$APT_CACHE_DIR"/{archives,lists/partial}
-          echo "Dir::Cache \"$APT_CACHE_DIR\";" | sudo tee /etc/apt/apt.conf.d/90user-cache
-          echo "Dir::Cache::archives \"$APT_CACHE_DIR/archives\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
-          echo "Dir::State::lists \"$APT_CACHE_DIR/lists\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
-          echo "Acquire::Check-Valid-Until \"false\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
-          echo "Acquire::Languages \"none\";" | sudo tee -a /etc/apt/apt.conf.d/90user-cache
-          sudo chown -R $USER:$USER "$APT_CACHE_DIR"
-
-      - name: Set APT Cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.HOME }}/apt-cache
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/OriginBuild.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-apt-
-
       - name: Debug Show Selected Inputs
         run: |
           echo "Selected CPU: ${{ needs.get-config.outputs.CPU }}"
