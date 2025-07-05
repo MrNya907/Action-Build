@@ -1,4 +1,4 @@
-name: Origin Build
+name: Build OnePlus_SukiSU Ultra All
 on:
   workflow_dispatch:
     inputs:
@@ -6,7 +6,7 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_13
+        default: oneplus_ace2_pro_v
         options:
           - oneplus_nord_ce4_v
           - oneplus_ace_3v_v
@@ -37,7 +37,7 @@ on:
         type: choice
         description: "编译方式"
         required: true
-        default: perf
+        default: gki
         options:
           - gki
           - perf
@@ -54,12 +54,12 @@ on:
         type: string
         description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
-        default: "reigadegr"
+        default: ""
       BUILD_TIME:
         type: string
         description: "自定义构建时间 (留空则使用当前时间)"
         required: false
-        default: ""
+        default: "Fri May 30 04:01:05 UTC 2025"
       FAST_BUILD:
         type: boolean
         description: "是否启用极速构建？"
@@ -79,7 +79,7 @@ on:
         type: boolean
         description: "是否添加风驰驱动？"
         required: true
-        default: true
+        default: false
       ZRAM:
         type: boolean
         description: "是否添加更多的ZRAM算法？"
@@ -111,9 +111,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check Disk Space
-        run: |
-          df -h
-          uname -a
+        run: df -h
 
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
@@ -160,7 +158,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/apt-cache
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/OriginBuild.yml') }}
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/Build SukiSU Ultra OnePlus.yml') }}
           restore-keys: |
             ${{ runner.os }}-apt-
 
@@ -191,17 +189,7 @@ jobs:
             python3 git curl ccache libelf-dev \
             build-essential flex bison libssl-dev \
             libncurses-dev liblz4-tool zlib1g-dev \
-            libxml2-utils rsync unzip curl bison flex \
-            make binutils dwarves git lld pahole zip \
-            perl make gcc python3 python-is-python3 \
-            bc libssl-dev libelf-dev clang wget cmake python3 \
-            clang cmake make llvm wget
-
-      # - name: LLVM latest
-        # run: |
-          # wget https://apt.llvm.org/llvm.sh
-          # sudo chmod +x llvm.sh
-          # sudo ./llvm.sh 20 all
+            libxml2-utils rsync unzip
 
       - name: Restore Ccache
         uses: actions/cache@v3
@@ -236,11 +224,8 @@ jobs:
       - name: Initialize Repo and Sync
         run: |
           mkdir kernel_workspace && cd kernel_workspace
-          mkdir kernel_platform && cd kernel_platform
-          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
-          cd  ..
-          # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
-          # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
+          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           if [  -e kernel_platform/common/BUILD.bazel ]; then
           sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
           fi
@@ -297,8 +282,8 @@ jobs:
             chmod +x "$path"
           done
 
-          # git add -A
-          # git commit -m "Custom suffix & removed -dirty"
+          git add -A
+          git commit -m "Custom suffix & removed -dirty"
 
       # 自动生成随机后缀（仅在 SUFFIX 未设置时生效）*
       - name: Custom Kernel Random Suffix if empty
@@ -347,8 +332,8 @@ jobs:
             chmod +x "$path"
           done
 
-          # git add -A
-          # git commit -m "Random suffix & remove -dirty"
+          git add -A
+          git commit -m "Random suffix & remove -dirty"
 
       - name: Download kernel-manifest
         id: fetch_manifest
@@ -408,11 +393,11 @@ jobs:
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
 
-            # if [[ "$TRUSTY_EXISTS" == "false" ]]; then
-              # echo "修复内核版本6.6部分机型susfs的问题"
-              # sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
-              # sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
-            # fi
+            if [[ "$TRUSTY_EXISTS" == "false" ]]; then
+              echo "修复内核版本6.6部分机型susfs的问题"
+              sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+              sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+            fi
           fi
           echo "正在打susfs补丁"
           patch -p1 < 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch || true
@@ -446,27 +431,18 @@ jobs:
             patch -p1 -F 3 < syscall_hooks.patch
             echo "vfs_patch完成"
 
-      # - name: Apply ZRAM
-        # if: ${{ github.event.inputs.ZRAM == 'true' }}
-        # run: |
-          # cd kernel_workspace/kernel_platform/common
-            # cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4kd.patch ./
-            # echo "正在打lz4kd补丁"
-            # patch -p1 -F 3 < lz4kd.patch || true
-            # echo 'lz4kd_patch完成'
-            # cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4k_oplus.patch ./
-            # echo "正在打lz4k_oplus补丁"
-            # patch -p1 -F 3 < lz4k_oplus.patch || true
-            # echo 'lz4k_oplus_patch完成'
-
-      - name: Remove OnePlus Kernel Module
-        run: |          
+      - name: Apply ZRAM
+        if: ${{ github.event.inputs.ZRAM == 'true' }}
+        run: |
           cd kernel_workspace/kernel_platform/common
-          wget https://github.com/reigadegr/Action-Build/raw/suki/black_module.patch
-          git apply black_module.patch
-          # Remove check_defconfig
-          sed -i 's/check_defconfig//' ./build.config.gki
-          echo "移除内核模块完成"
+            cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4kd.patch ./
+            echo "正在打lz4kd补丁"
+            patch -p1 -F 3 < lz4kd.patch || true
+            echo 'lz4kd_patch完成'
+            cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4k_oplus.patch ./
+            echo "正在打lz4k_oplus补丁"
+            patch -p1 -F 3 < lz4k_oplus.patch || true
+            echo 'lz4k_oplus_patch完成'
 
       # 配置信息
       - name: Add Configuration Settings
@@ -477,13 +453,8 @@ jobs:
 
           # SukiSU Ultra配置
           echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
-          if [ "${{ github.event.inputs.KPM }}" = 'true' ]; then
-            echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
-            echo "开启kpm"
-          else
-            echo "CONFIG_KPM=n" >> "$CONFIG_FILE"
-            echo "关闭kpm"
-          fi
+          echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
+
           # VFS配置
           if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
             echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
@@ -517,36 +488,10 @@ jobs:
           # BBR配置*
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BBR=y" >> "$CONFIG_FILE"
-          echo "CONFIG_DEFAULT_BBR=y" >> "$CONFIG_FILE"
           echo "CONFIG_NET_SCH_FQ=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BIC=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_WESTWOOD=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_HTCP=n" >> "$CONFIG_FILE"
-          
-          sed -i '/CONFIG_DEFAULT_CUBIC/d' "$CONFIG_FILE"
-          echo "CONFIG_DEFAULT_CUBIC=n" >> "$CONFIG_FILE"
-          
-          sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$CONFIG_FILE"
-          echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$CONFIG_FILE"
-          # ssg
-          echo "CONFIG_MQ_IOSCHED_SSG=y" >> "$CONFIG_FILE"
-          echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
-          
-          # lto thin
-          sed -i "/CONFIG_LTO_CLANG_THIN/d" "$CONFIG_FILE"          
-          echo "CONFIG_LTO_CLANG_THIN=y" >> "$CONFIG_FILE"
-          echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
-          # 幽灵漏洞
-          echo "CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY=n" >> "$CONFIG_FILE"
-          echo "CONFIG_UNMAP_KERNEL_AT_EL0=n" >> "$CONFIG_FILE"
-          
-          # Inline zram
-          sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
-          sed -i '/CONFIG_ZRAM/d' "$CONFIG_FILE"
-          echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
-          echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"
-          echo "CONFIG_ZRAM_DEF_COMP_ZSTD=y" >> "$CONFIG_FILE"
-          echo "CONFIG_ZRAM_DEF_COMP=\"zstd\"" >> "$CONFIG_FILE"
 
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
@@ -555,14 +500,14 @@ jobs:
           echo "CONFIG_IP_NF_TARGET_ECN=y" >> "$CONFIG_FILE"
 
           # ZRAM配置*
-          # if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
-            # echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
-            # echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
-            # echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
-            # echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
-            # echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
-            # echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
-          # fi
+          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
+            echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
+            echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
+            echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
+            echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
+            echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
+            echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
+          fi
 
           # 移除构建审查
           sed -i 's/check_defconfig//' ./common/build.config.gki
@@ -649,7 +594,7 @@ jobs:
           export CC="ccache clang"
 
           # 安装依赖工具
-          sudo apt install -y libelf-dev ccache lld
+          sudo apt install -y libelf-dev ccache
 
           cd kernel_workspace/kernel_platform/common
 
@@ -668,11 +613,10 @@ jobs:
           # ccache -C
 
           # 配置内核
-          # make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
+          make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig
 
           # 构建内核
-          # make -j$(nproc --all) O=out $MAKE_ARGS   
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig all | tee  ../../../build.txt
+          make -j$(nproc --all) O=out $MAKE_ARGS
 
           # 显示 ccache 统计信息
           ccache -s
@@ -776,7 +720,7 @@ jobs:
         continue-on-error: true
         run: |
           wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
-          # cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
+          cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
 
       # 解压 SukiSU Ultra（CI）（不自动安装）
       - name: Download Latest SukiSU-Ultra APK from CI
@@ -800,7 +744,7 @@ jobs:
             else
               echo "Downloading from: $artifact_url"
               curl -fL -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
-              # unzip -j manager.zip "*.apk" -d ./AnyKernel3/
+              unzip -j manager.zip "*.apk" -d ./AnyKernel3/
             fi
           fi
 
