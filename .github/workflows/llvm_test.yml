@@ -202,5 +202,7 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
           sudo ./llvm.sh 20 all
-          find /usr -type d -name "*llvm*"
 
+      - name: LLVM finder
+        run: |
+          sudo find /usr -type d -name "*llvm*"
