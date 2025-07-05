@@ -775,7 +775,7 @@ jobs:
         continue-on-error: true
         run: |
           wget -O ksu_module_susfs_1.5.2+_Release.zip https://github.com/sidex15/ksu_module_susfs/releases/latest/download/ksu_module_susfs_1.5.2+.zip
-          cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
+          # cp ksu_module_susfs_1.5.2+_Release.zip ./AnyKernel3/
 
       # 解压 SukiSU Ultra（CI）（不自动安装）
       - name: Download Latest SukiSU-Ultra APK from CI
@@ -799,7 +799,7 @@ jobs:
             else
               echo "Downloading from: $artifact_url"
               curl -fL -H "Authorization: token $GITHUB_TOKEN" -o manager.zip "$artifact_url"
-              unzip -j manager.zip "*.apk" -d ./AnyKernel3/
+              # unzip -j manager.zip "*.apk" -d ./AnyKernel3/
             fi
           fi
 
