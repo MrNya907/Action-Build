@@ -467,6 +467,9 @@ jobs:
           sed -i "/CONFIG_LTO_CLANG_THIN/d" "$CONFIG_FILE"          
           echo "CONFIG_LTO_CLANG_THIN=y" >> "$CONFIG_FILE"
           echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
+                    
+          echo "CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY=n" >> "$CONFIG_FILE"
+          echo "CONFIG_UNMAP_KERNEL_AT_EL0=n" >> "$CONFIG_FILE"
           
           # echo "CONFIG_LLVM_POLLY=y" >> "$CONFIG_FILE"
           # echo "CONFIG_LD_DEAD_CODE_DATA_ELIMINATION=y" >> "$CONFIG_FILE"

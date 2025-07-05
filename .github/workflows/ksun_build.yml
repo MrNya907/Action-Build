@@ -8,12 +8,6 @@ on:
         required: true
         default: sm8750
         options:
-          - sm7550
-          - sm7675
-          - sm8450
-          - sm8475
-          - sm8550
-          - sm8650
           - sm8750
       FILE:
         type: choice
@@ -30,10 +24,6 @@ on:
         required: true
         default: sun
         options:
-          - crow
-          - waipio
-          - kalama
-          - pineapple
           - sun
       ANDROID_VERSION:
         type: choice
@@ -175,12 +165,6 @@ jobs:
           rm -rf .git
           cd  ..
           fi
-
-         
-          # cp -rf my_op/* kernel_platform/common
-          # cp -r ./*patch kernel_platform/common
-          
-          # cp -rf my_op/* common/
           cp -r ./*patch common/
           
           cd  ..
