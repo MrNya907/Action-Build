@@ -6,7 +6,7 @@ on:
         type: choice
         description: "配置文件"
         required: true
-        default: oneplus_ace2_pro_v
+        default: oneplus_13
         options:
           - oneplus_nord_ce4_v
           - oneplus_ace_3v_v
@@ -37,7 +37,7 @@ on:
         type: choice
         description: "编译方式"
         required: true
-        default: gki
+        default: perf
         options:
           - gki
           - perf
@@ -54,12 +54,12 @@ on:
         type: string
         description: "自定义内核后缀 (留空则使用随机字符串)"
         required: false
-        default: ""
+        default: "reigadegr"
       BUILD_TIME:
         type: string
         description: "自定义构建时间 (留空则使用当前时间)"
         required: false
-        default: "Fri May 30 04:01:05 UTC 2025"
+        default: ""
       FAST_BUILD:
         type: boolean
         description: "是否启用极速构建？"
@@ -79,7 +79,7 @@ on:
         type: boolean
         description: "是否添加风驰驱动？"
         required: true
-        default: false
+        default: true
       ZRAM:
         type: boolean
         description: "是否添加更多的ZRAM算法？"
