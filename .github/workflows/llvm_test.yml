@@ -177,4 +177,5 @@ jobs:
           clang -v
           llvm-ar --version
           which llvm-ar-20
+          llvm-ar-20 --version
 
