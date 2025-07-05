@@ -189,7 +189,7 @@ jobs:
             python3 git curl ccache libelf-dev \
             build-essential flex bison libssl-dev \
             libncurses-dev liblz4-tool zlib1g-dev \
-            libxml2-utils rsync unzip
+            libxml2-utils rsync unzip dwarves
 
       - name: Restore Ccache
         uses: actions/cache@v3
@@ -646,7 +646,7 @@ jobs:
           # 拼接构建参数
           MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
-            PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
+            PAHOLE=$(which pahole) \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
 
           # 如果是 5.10，添加 LLVM_IAS=1
