@@ -157,25 +157,25 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
-          sudo ./llvm.sh 20 all
+          sudo ./llvm.sh 19 all
 
       - name: LLVM finder
         run: |
-          # for i in $(find /usr -type d -name "*llvm-20*"); do
+          # for i in $(find /usr -type d -name "*llvm-19*"); do
             # echo $i
             # ls -al $i
           # done
-          ls -al /usr/lib/llvm-20/bin
+          ls -al /usr/lib/llvm-19/bin
           which clang
           which llvm-ar
-          which llvm-ar-20 || echo "出错"
+          which llvm-ar-19 || echo "出错"
           clang -v
           llvm-ar --version
-          export PATH="/usr/lib/llvm-20/bin:$PATH"
+          export PATH="/usr/lib/llvm-19/bin:$PATH"
           which clang
           which llvm-ar
           clang -v
           llvm-ar --version
-          which llvm-ar-20
-          llvm-ar-20 --version
+          which llvm-ar-19
+          llvm-ar-19 --version
 
