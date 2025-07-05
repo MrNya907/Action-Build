@@ -161,7 +161,8 @@ jobs:
 
       - name: LLVM finder
         run: |
-          for i in $(find /usr -type d -name "*llvm-20*"); do
-            echo $i
-            ls -al $i
-          done   
+          # for i in $(find /usr -type d -name "*llvm-20*"); do
+            # echo $i
+            # ls -al $i
+          # done
+          ls -al /usr/lib/llvm-20/bin
