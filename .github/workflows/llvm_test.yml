@@ -168,6 +168,7 @@ jobs:
           ls -al /usr/lib/llvm-20/bin
           which clang
           which llvm-ar
+          which llvm-ar-20 || echo "出错"
           clang -v
           llvm-ar --version
           export PATH="/usr/lib/llvm-20/bin:$PATH"
@@ -175,3 +176,5 @@ jobs:
           which llvm-ar
           clang -v
           llvm-ar --version
+          which llvm-ar-20
+
