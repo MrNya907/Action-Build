@@ -1,4 +1,4 @@
-name: file Map Workflow
+name: File Map Workflow
 
 on:
   workflow_call:
