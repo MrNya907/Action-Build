@@ -224,8 +224,11 @@ jobs:
       - name: Initialize Repo and Sync
         run: |
           mkdir kernel_workspace && cd kernel_workspace
-          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
-          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          mkdir kernel_platform && cd kernel_platform
+          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
+          cd  ..
+          # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
+          # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           if [  -e kernel_platform/common/BUILD.bazel ]; then
           sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
           fi
@@ -393,11 +396,11 @@ jobs:
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
 
-            if [[ "$TRUSTY_EXISTS" == "false" ]]; then
-              echo "修复内核版本6.6部分机型susfs的问题"
-              sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
-              sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
-            fi
+            # if [[ "$TRUSTY_EXISTS" == "false" ]]; then
+              # echo "修复内核版本6.6部分机型susfs的问题"
+              # sed -i 's/-32,12 +32,38/-32,11 +32,37/g' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+              # sed -i '/#include <trace\/hooks\/fs.h>/d' 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${KERNEL_VERSION}.patch
+            # fi
           fi
           echo "正在打susfs补丁"
           patch -p1 < 50_add_susfs_in_gki-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}.patch || true
@@ -431,18 +434,27 @@ jobs:
             patch -p1 -F 3 < syscall_hooks.patch
             echo "vfs_patch完成"
 
-      - name: Apply ZRAM
-        if: ${{ github.event.inputs.ZRAM == 'true' }}
-        run: |
+      # - name: Apply ZRAM
+        # if: ${{ github.event.inputs.ZRAM == 'true' }}
+        # run: |
+          # cd kernel_workspace/kernel_platform/common
+            # cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4kd.patch ./
+            # echo "正在打lz4kd补丁"
+            # patch -p1 -F 3 < lz4kd.patch || true
+            # echo 'lz4kd_patch完成'
+            # cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4k_oplus.patch ./
+            # echo "正在打lz4k_oplus补丁"
+            # patch -p1 -F 3 < lz4k_oplus.patch || true
+            # echo 'lz4k_oplus_patch完成'
+
+      - name: Remove OnePlus Kernel Module
+        run: |          
           cd kernel_workspace/kernel_platform/common
-            cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4kd.patch ./
-            echo "正在打lz4kd补丁"
-            patch -p1 -F 3 < lz4kd.patch || true
-            echo 'lz4kd_patch完成'
-            cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4k_oplus.patch ./
-            echo "正在打lz4k_oplus补丁"
-            patch -p1 -F 3 < lz4k_oplus.patch || true
-            echo 'lz4k_oplus_patch完成'
+          wget https://github.com/reigadegr/Action-Build/raw/suki/black_module.patch
+          git apply black_module.patch
+          # Remove check_defconfig
+          sed -i 's/check_defconfig//' ./build.config.gki
+          echo "移除内核模块完成"
 
       # 配置信息
       - name: Add Configuration Settings
@@ -488,10 +500,34 @@ jobs:
           # BBR配置*
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BBR=y" >> "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_BBR=y" >> "$CONFIG_FILE"
           echo "CONFIG_NET_SCH_FQ=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BIC=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_WESTWOOD=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_HTCP=n" >> "$CONFIG_FILE"
+          
+          sed -i '/CONFIG_DEFAULT_CUBIC/d' "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_CUBIC=n" >> "$CONFIG_FILE"
+          
+          sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$CONFIG_FILE"
+          # ssg
+          echo "CONFIG_MQ_IOSCHED_SSG=y" >> "$CONFIG_FILE"
+          echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
+          
+          # lto thin
+          sed -i "/CONFIG_LTO_CLANG_THIN/d" "$CONFIG_FILE"          
+          echo "CONFIG_LTO_CLANG_THIN=y" >> "$CONFIG_FILE"
+          echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
+          # 幽灵漏洞
+          echo "CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY=n" >> "$CONFIG_FILE"
+          echo "CONFIG_UNMAP_KERNEL_AT_EL0=n" >> "$CONFIG_FILE"
+          
+          if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
+            sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
+            echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+            sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
+          fi
 
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
@@ -500,14 +536,14 @@ jobs:
           echo "CONFIG_IP_NF_TARGET_ECN=y" >> "$CONFIG_FILE"
 
           # ZRAM配置*
-          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
-            echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
-            echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
-          fi
+          # if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
+            # echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
+          # fi
 
           # 移除构建审查
           sed -i 's/check_defconfig//' ./common/build.config.gki
