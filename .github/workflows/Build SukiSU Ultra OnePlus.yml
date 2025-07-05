@@ -226,6 +226,10 @@ jobs:
           mkdir kernel_workspace && cd kernel_workspace
           repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          cd kernel_platform
+          rm -rf common
+          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
+          cd  ..
           if [  -e kernel_platform/common/BUILD.bazel ]; then
           sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
           fi
@@ -453,8 +457,13 @@ jobs:
 
           # SukiSU Ultra配置
           echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
-          echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
-
+          if [ "${{ github.event.inputs.KPM }}" = 'true' ]; then
+            echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
+            echo "开启kpm"
+          else
+            echo "CONFIG_KPM=n" >> "$CONFIG_FILE"
+            echo "关闭kpm"
+          fi
           # VFS配置
           if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
             echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
@@ -488,10 +497,36 @@ jobs:
           # BBR配置*
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BBR=y" >> "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_BBR=y" >> "$CONFIG_FILE"
           echo "CONFIG_NET_SCH_FQ=y" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_BIC=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_WESTWOOD=n" >> "$CONFIG_FILE"
           echo "CONFIG_TCP_CONG_HTCP=n" >> "$CONFIG_FILE"
+          
+          sed -i '/CONFIG_DEFAULT_CUBIC/d' "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_CUBIC=n" >> "$CONFIG_FILE"
+          
+          sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$CONFIG_FILE"
+          echo "CONFIG_DEFAULT_TCP_CONG=\"bbr\"" >> "$CONFIG_FILE"
+          # ssg
+          echo "CONFIG_MQ_IOSCHED_SSG=y" >> "$CONFIG_FILE"
+          echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
+          
+          # lto thin
+          sed -i "/CONFIG_LTO_CLANG_THIN/d" "$CONFIG_FILE"          
+          echo "CONFIG_LTO_CLANG_THIN=y" >> "$CONFIG_FILE"
+          echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
+          # 幽灵漏洞
+          echo "CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY=n" >> "$CONFIG_FILE"
+          echo "CONFIG_UNMAP_KERNEL_AT_EL0=n" >> "$CONFIG_FILE"
+          
+          # Inline zram
+          sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
+          sed -i '/CONFIG_ZRAM/d' "$CONFIG_FILE"
+          echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+          echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"
+          echo "CONFIG_ZRAM_DEF_COMP_ZSTD=y" >> "$CONFIG_FILE"
+          echo "CONFIG_ZRAM_DEF_COMP=\"zstd\"" >> "$CONFIG_FILE"
 
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
@@ -500,14 +535,14 @@ jobs:
           echo "CONFIG_IP_NF_TARGET_ECN=y" >> "$CONFIG_FILE"
 
           # ZRAM配置*
-          if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
-            echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
-            echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
-            echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
-          fi
+          # if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
+            # echo "CONFIG_CRYPTO_LZ4HC=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_LZ4K=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_LZ4KD=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_842=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_CRYPTO_LZ4K_OPLUS=y" >> "$CONFIG_FILE"
+            # echo "CONFIG_ZRAM_WRITEBACK=y" >> "$CONFIG_FILE"
+          # fi
 
           # 移除构建审查
           sed -i 's/check_defconfig//' ./common/build.config.gki
@@ -521,6 +556,16 @@ jobs:
          cp -r ./sched_ext/* ./common/kernel/sched
          rm -rf ./sched_ext/.git
          cd common/kernel/sched
+
+      - name: Remove OnePlus Kernel Module
+        run: |          
+          cd kernel_workspace/kernel_platform/common
+          wget https://github.com/reigadegr/Action-Build/raw/suki/black_module.patch
+          git apply black_module.patch
+          # Remove check_defconfig
+          sed -i 's/check_defconfig//' ./build.config.gki
+          echo "移除内核模块完成"
+
 
       # 自定义内核构建时间，无需加入多余的时间前缀
       - name: Custom BUILD_TIME
