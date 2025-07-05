@@ -110,33 +110,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check Disk Space
-        run: df -h
-
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 8192
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
-      - name: Create and Enable 3G Swap
+      - name: remove ccache
         run: |
-          sudo swapoff -a
-          sudo fallocate -l 3G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          free -h
-
-      - name: LLVM latest
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          sudo chmod +x llvm.sh
-          sudo ./llvm.sh 20 all
           sudo rm -rf /home/runner/.ccache*
 
       - name: Set Cache Environment
