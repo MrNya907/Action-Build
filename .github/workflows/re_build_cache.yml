@@ -112,7 +112,9 @@ jobs:
 
       - name: remove ccache
         run: |
-          sudo rm -rf /home/runner/.ccache*
+          sudo rm -rf /home/runner/.*ccache*
+          sudo rm -rf /home/runner/*ccache*
+          sudo rm -rf "$HOME/apt-cache"
 
       - name: Set Cache Environment
         run: |
