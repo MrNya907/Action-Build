@@ -19,6 +19,7 @@ on:
           - SukiSU Ultra Susfs
           - Origin Build
           - 重置缓存
+          - find llvm
       count:
         description: '最多清理的运行次数'
         required: false
