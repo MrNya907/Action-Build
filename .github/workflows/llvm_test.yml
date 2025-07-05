@@ -115,31 +115,6 @@ jobs:
           df -h
           uname -a
 
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 8192
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-
-      - name: Create and Enable 3G Swap
-        run: |
-          sudo swapoff -a
-          sudo fallocate -l 3G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          free -h
-
-      - name: Set Cache Environment
-        run: |
-          echo "CCACHE_DIR=$HOME/.ccache_${{ github.event.inputs.FILE }}" >> $GITHUB_ENV
-          mkdir -p "$HOME/.ccache_${{ github.event.inputs.FILE }}"
-          echo "set: $HOME/.ccache_${{ github.event.inputs.FILE }}"
-
       - name: Configure Git
         run: |
           git config --global user.name "Numbersf"
