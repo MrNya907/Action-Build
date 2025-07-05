@@ -151,7 +151,7 @@ jobs:
             make binutils dwarves git lld pahole zip \
             perl make gcc python3 python-is-python3 \
             bc libssl-dev libelf-dev clang wget cmake python3 \
-            clang cmake make llvm wget
+            clang cmake make llvm wget python3 python-is-python3 perl
 
       - name: LLVM latest
         run: |
@@ -168,3 +168,10 @@ jobs:
           ls -al /usr/lib/llvm-20/bin
           which clang
           which llvm-ar
+          clang -v
+          llvm-ar --version
+          export PATH="/usr/lib/llvm-20/bin:$PATH"
+          which clang
+          which llvm-ar
+          clang -v
+          llvm-ar --version
