@@ -536,10 +536,14 @@ jobs:
           sed -i "/CONFIG_LTO_CLANG_THIN/d" "$CONFIG_FILE"          
           echo "CONFIG_LTO_CLANG_THIN=y" >> "$CONFIG_FILE"
           echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
+          
           # 幽灵漏洞
           echo "CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY=n" >> "$CONFIG_FILE"
           echo "CONFIG_UNMAP_KERNEL_AT_EL0=n" >> "$CONFIG_FILE"
           
+          # 堆栈保护关闭
+          echo "CONFIG_STACKPROTECTOR_PER_TASK=n" >> "$CONFIG_FILE"
+
           # Inline zram
           sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
           sed -i '/CONFIG_ZRAM/d' "$CONFIG_FILE"
