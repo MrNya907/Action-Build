@@ -464,7 +464,7 @@ jobs:
           echo "CONFIG_MQ_IOSCHED_SSG_CGROUP=y" >> "$CONFIG_FILE"
           
           # lto thin
-          sed -i "CONFIG_LTO_CLANG_THIN" "$CONFIG_FILE"          
+          sed -i "/CONFIG_LTO_CLANG_THIN/d" "$CONFIG_FILE"          
           echo "CONFIG_LTO_CLANG_THIN=y" >> "$CONFIG_FILE"
           echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
           
