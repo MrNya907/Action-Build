@@ -672,7 +672,7 @@ jobs:
 
           # 构建内核
           # make -j$(nproc --all) O=out $MAKE_ARGS   
-          make -j$(nproc --all) LLVM=-20 ARCH=arm64 RUSTC=$RUSTC CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnuabeihf- CC=clang LD=ld.lld HOSTCC=clang HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all | tee  ../../../build.txt
+          make -j$(nproc --all) LLVM=-20 ARCH=arm64 RUSTC=$RUSTC CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnuabeihf- CC="ccache clang" LD=ld.lld HOSTCC="ccache clang" HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error gki_defconfig all | tee  ../../../build.txt
 
           # 显示 ccache 统计信息
           ccache -s
