@@ -545,11 +545,11 @@ jobs:
           echo "CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY=n" >> "$CONFIG_FILE"
           echo "CONFIG_UNMAP_KERNEL_AT_EL0=n" >> "$CONFIG_FILE"
           
-          if [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.6" ]; then
-            sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
-            echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
-            sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
-          fi
+          # Inline zram
+          sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
+          sed -i '/CONFIG_ZRAM/d' "$CONFIG_FILE"
+          echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
+          echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"         
 
           # ECN配置*
           echo "CONFIG_IP_ECN=y" >> "$CONFIG_FILE"
