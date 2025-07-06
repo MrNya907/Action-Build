@@ -201,7 +201,7 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           sudo chmod +x llvm.sh
-          sudo ./llvm.sh 19 all
+          sudo ./llvm.sh 20 all
 
       - name: Restore Ccache
         uses: actions/cache@v3
@@ -676,10 +676,10 @@ jobs:
 
           # 构建内核
           # make -j$(nproc --all) O=out $MAKE_ARGS
-          export PATH="/usr/lib/llvm-19/bin:$PATH"
-          make -j$(nproc --all) LLVM=19 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
+          # export PATH="/usr/lib/llvm-20/bin:$PATH"
+          make -j$(nproc --all) LLVM=20 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
           
-          make -j$(nproc --all) LLVM=19 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
+          make -j$(nproc --all) LLVM=20 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
 
           # 显示 ccache 统计信息
           ccache -s
