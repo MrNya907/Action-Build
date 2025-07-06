@@ -679,7 +679,7 @@ jobs:
           # make -j$(nproc --all) O=out $MAKE_ARGS
           # export PATH="/usr/lib/llvm-20/bin:$PATH"
           make -j$(nproc --all) LLVM=20 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
-          
+          cp  .config  ../../../config.txt
           make -j$(nproc --all) LLVM=20 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
 
           # 显示 ccache 统计信息
@@ -702,6 +702,7 @@ jobs:
           git clone https://github.com/Numbersf/AnyKernel3 --depth=1
           rm -rf ./AnyKernel3/.git
           cp *build.txt ./AnyKernel3 || echo "复制log失败"
+          cp config.txt ./AnyKernel3 || echo "复制config失败"
           mkdir -p kernel_workspace/kernel_platform/out/FinalImageFind/
           dir1=""
           dir2=""
