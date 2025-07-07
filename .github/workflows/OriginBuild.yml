@@ -147,24 +147,6 @@ jobs:
           echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
           echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
 
-      - name: Optimize Memory Management
-        run: |
-          sudo -E sysctl vm.swappiness=1
-          sudo -E sysctl vm.min_free_kbytes=32768
-          sudo -E sysctl vm.watermark_scale_factor=100
-          sudo -E sysctl vm.watermark_boost_factor=15000
-          sudo -E sysctl vm.overcommit_memory=1
-          sudo -E sysctl vm.page-cluster=0
-          sudo -E modprobe zram
-          echo "0" | sudo -E tee /sys/class/block/zram0/mem_limit
-          echo "zstd" | sudo -E tee /sys/class/block/zram0/comp_algorithm
-          echo "$(awk 'NR==1{print $2*1000}' </proc/meminfo)" | sudo -E tee /sys/class/block/zram0/disksize
-          sudo -E mkswap /dev/zram0
-          sudo -E swapon -p 100 /dev/zram0
-          echo "Y" | sudo -E tee /sys/kernel/mm/lru_gen/enabled
-          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
-          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
-
       - name: Setup TimeZone
         run: |
           sudo -E rm -rf /etc/localtime
@@ -200,8 +182,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-apt-
 
-
-
       - name: Install Dependencies
         run: |
           sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock
@@ -217,7 +197,7 @@ jobs:
             perl make gcc python3 python-is-python3 \
             bc libssl-dev libelf-dev clang wget cmake python3 \
             clang cmake make llvm wget        
-          sudo -E apt-get install --no-install-recommends -y \
+          sudo DEBIAN_FRONTEND=noninteractive apt -o Dir::Cache="$APT_CACHE_DIR" install -yq --no-install-recommends \
             lsb-release linux-modules-extra-"$(uname -r)" ccache pahole \
             git automake flex bison build-essential zlib1g-dev make \
             libelf-dev libssl-dev openssl bc device-tree-compiler gzip \
@@ -227,6 +207,24 @@ jobs:
             libc6-dev-armel-cross libc6-dev-armhf-cross libc6-dev-arm64-cross
           sudo -E apt-get clean
           df -h
+
+      - name: Optimize Memory Management
+        run: |
+          sudo -E sysctl vm.swappiness=1
+          sudo -E sysctl vm.min_free_kbytes=32768
+          sudo -E sysctl vm.watermark_scale_factor=100
+          sudo -E sysctl vm.watermark_boost_factor=15000
+          sudo -E sysctl vm.overcommit_memory=1
+          sudo -E sysctl vm.page-cluster=0
+          sudo -E modprobe zram
+          echo "0" | sudo -E tee /sys/class/block/zram0/mem_limit
+          echo "zstd" | sudo -E tee /sys/class/block/zram0/comp_algorithm
+          echo "$(awk 'NR==1{print $2*1000}' </proc/meminfo)" | sudo -E tee /sys/class/block/zram0/disksize
+          sudo -E mkswap /dev/zram0
+          sudo -E swapon -p 100 /dev/zram0
+          echo "Y" | sudo -E tee /sys/kernel/mm/lru_gen/enabled
+          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
+          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
 
       - name: LLVM latest
         run: |
