@@ -111,24 +111,64 @@ jobs:
           df -h
           uname -a
 
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 8192
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
+      # - name: Maximize Build Space
+        # uses: easimon/maximize-build-space@master
+        # with:
+          # root-reserve-mb: 8192
+          # temp-reserve-mb: 2048
+          # remove-dotnet: 'true'
+          # remove-android: 'true'
+          # remove-haskell: 'true'
+          # remove-codeql: 'true'
 
-      - name: Create and Enable 3G Swap
+      # - name: Create and Enable 3G Swap
+        # run: |
+          # sudo swapoff -a
+          # sudo fallocate -l 3G /swapfile
+          # sudo chmod 600 /swapfile
+          # sudo mkswap /swapfile
+          # sudo swapon /swapfile
+          # free -h
+
+      - name: Debug Show Selected Inputs
         run: |
-          sudo swapoff -a
-          sudo fallocate -l 3G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          free -h
+          echo "Selected CPU: ${{ needs.get-config.outputs.CPU }}"
+          echo "Selected FILE: ${{ github.event.inputs.FILE }}"
+          echo "Selected CPUD: ${{ needs.get-config.outputs.CPUD }}"
+          echo "Selected ANDROID_VERSION: ${{ needs.get-config.outputs.ANDROID_VERSION }}"
+          echo "Selected KERNEL_VERSION: ${{ needs.get-config.outputs.KERNEL_VERSION }}"
+          echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
+          echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
+          echo "Custom BUILD_TIME: ${{ github.event.inputs.BUILD_TIME }}"
+          echo "Selected SUSFS_ENABLE: ${{ github.event.inputs.SUSFS_ENABLE }}"
+          echo "Selected VFS: ${{ github.event.inputs.VFS }}"
+          echo "Selected KPM: ${{ github.event.inputs.KPM }}"
+          echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}"       
+          echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
+          echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
+
+      - name: Optimize Memory Management
+        run: |
+          sudo -E sysctl vm.swappiness=1
+          sudo -E sysctl vm.min_free_kbytes=32768
+          sudo -E sysctl vm.watermark_scale_factor=100
+          sudo -E sysctl vm.watermark_boost_factor=15000
+          sudo -E sysctl vm.overcommit_memory=1
+          sudo -E sysctl vm.page-cluster=0
+          sudo -E modprobe zram
+          echo "0" | sudo -E tee /sys/class/block/zram0/mem_limit
+          echo "zstd" | sudo -E tee /sys/class/block/zram0/comp_algorithm
+          echo "$(awk 'NR==1{print $2*1000}' </proc/meminfo)" | sudo -E tee /sys/class/block/zram0/disksize
+          sudo -E mkswap /dev/zram0
+          sudo -E swapon -p 100 /dev/zram0
+          echo "Y" | sudo -E tee /sys/kernel/mm/lru_gen/enabled
+          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
+          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
+
+      - name: Setup TimeZone
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
       - name: Set Cache Environment
         run: |
@@ -160,22 +200,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-apt-
 
-      - name: Debug Show Selected Inputs
-        run: |
-          echo "Selected CPU: ${{ needs.get-config.outputs.CPU }}"
-          echo "Selected FILE: ${{ github.event.inputs.FILE }}"
-          echo "Selected CPUD: ${{ needs.get-config.outputs.CPUD }}"
-          echo "Selected ANDROID_VERSION: ${{ needs.get-config.outputs.ANDROID_VERSION }}"
-          echo "Selected KERNEL_VERSION: ${{ needs.get-config.outputs.KERNEL_VERSION }}"
-          echo "Selected BUILD_METHOD: ${{ github.event.inputs.BUILD_METHOD }}"
-          echo "Custom SUFFIX: ${{ github.event.inputs.SUFFIX }}"
-          echo "Custom BUILD_TIME: ${{ github.event.inputs.BUILD_TIME }}"
-          echo "Selected SUSFS_ENABLE: ${{ github.event.inputs.SUSFS_ENABLE }}"
-          echo "Selected VFS: ${{ github.event.inputs.VFS }}"
-          echo "Selected KPM: ${{ github.event.inputs.KPM }}"
-          echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}"       
-          echo "Selected ZRAM: ${{ github.event.inputs.ZRAM }}"
-          echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
+
 
       - name: Install Dependencies
         run: |
@@ -191,7 +216,17 @@ jobs:
             make binutils dwarves git lld pahole zip \
             perl make gcc python3 python-is-python3 \
             bc libssl-dev libelf-dev clang wget cmake python3 \
-            clang cmake make llvm wget
+            clang cmake make llvm wget        
+          sudo -E apt-get install --no-install-recommends -y \
+            lsb-release linux-modules-extra-"$(uname -r)" ccache pahole \
+            git automake flex bison build-essential zlib1g-dev make \
+            libelf-dev libssl-dev openssl bc device-tree-compiler gzip \
+            python3-telethon python-is-python3 zip unzip zstd libzstd-dev pigz \
+            libncurses-dev asciidoc dos2unix lz4 fakeroot python3 python3-pip \
+            gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf \
+            libc6-dev-armel-cross libc6-dev-armhf-cross libc6-dev-arm64-cross
+          sudo -E apt-get clean
+          df -h
 
       - name: LLVM latest
         run: |
