@@ -41,11 +41,6 @@ on:
         options:
           - gki
           - perf
-      SUSFS_ENABLE:
-        type: boolean
-        description: "开启susfs"
-        required: true
-        default: true        
       SUFFIX:
         type: string
         description: "自定义内核后缀 (留空则使用随机字符串)"
@@ -71,6 +66,11 @@ on:
         description: "是否启用内核模块(KPM)？"
         required: true
         default: false
+      SUSFS_ENABLE:
+        type: boolean
+        description: "开启susfs"
+        required: true
+        default: true
       SCHED:
         type: boolean
         description: "是否添加风驰驱动？"
