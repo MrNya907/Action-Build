@@ -123,15 +123,6 @@ jobs:
           remove-codeql: true
           remove-docker-images: true
 
-      # - name: Create and Enable 3G Swap
-        # run: |
-          # sudo swapoff -a
-          # sudo fallocate -l 3G /swapfile
-          # sudo chmod 600 /swapfile
-          # sudo mkswap /swapfile
-          # sudo swapon /swapfile
-          # free -h
-
       - name: Debug Show Selected Inputs
         run: |
           echo "Selected CPU: ${{ needs.get-config.outputs.CPU }}"
@@ -164,14 +155,6 @@ jobs:
         run: |
           git config --global user.name "Numbersf"
           git config --global user.email "263623064@qq.com"
-
-      - name: Setup ndk
-        run: |
-          ndk_url=$(wget -qO- https://github.com/android/ndk/releases/latest | grep -e 'https://dl.google.com/android/repository/android-ndk-.*-linux.zip' | sed -n 's/.*<a href="\([^"]*\)".*/\1/p')
-          wget -O ndk.zip $ndk_url -nv
-          mkdir ~/ndk_temp
-          unzip ndk.zip -d ~/ndk_temp 2>&1 > /dev/null
-          mv ~/ndk_temp/*/* ~/ndk_temp
 
       - name: Configure APTC
         run: |
@@ -236,12 +219,6 @@ jobs:
           echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
           echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
 
-      - name: LLVM latest
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          sudo chmod +x llvm.sh
-          sudo ./llvm.sh 20 all
-
       - name: Restore Ccache
         uses: actions/cache@v3
         with:
@@ -276,6 +253,9 @@ jobs:
         run: |
           mkdir kernel_workspace && cd kernel_workspace
           mkdir kernel_platform && cd kernel_platform
+          repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-android15-6.6         
+          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          rm -rf common .repo
           git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
           cd common; git log; cd  ..
           cd  ..
@@ -681,16 +661,15 @@ jobs:
           sudo apt install -y libelf-dev ccache lld
 
           cd kernel_workspace/kernel_platform/common
-          export ANDROID_NDK_HOME=$(realpath ~/ndk_temp)
-          export ANDROID_NDK_ROOT=$ANDROID_NDK_HOME
-          export CC="ccache $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android35-clang"
-          export CXX="ccache $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android35-clang++"
-          make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
+          MAKE_ARGS="LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
+            RUSTC=../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
+            PAHOLE=../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
+            CC=../prebuilts/clang/host/linux-x86/clang-r510928/bin/clang \
+            LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-Wno-error"
+          make -j$(nproc --all) O=out $MAKE_ARGS gki_defconfig all | tee  ../../../build.txt  
           for i in $(find  . -type f -name ".config"); do
              cp $i  ../../../config.txt
           done
-          make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
-
           # 显示 ccache 统计信息
           ccache -s
 
