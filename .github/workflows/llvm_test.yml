@@ -382,6 +382,8 @@ jobs:
           echo "CONFIG_TCP_ECN=y" >> "$CONFIG_FILE"
           echo "CONFIG_IPV6_ECN=y" >> "$CONFIG_FILE"
           echo "CONFIG_IP_NF_TARGET_ECN=y" >> "$CONFIG_FILE"
+          
+          echo "CONFIG_AUTOFDO_CLANG=y" >> "$CONFIG_FILE"
 
           # ZRAM配置*
           # if [ "${{ github.event.inputs.ZRAM }}" = "true" ]; then
