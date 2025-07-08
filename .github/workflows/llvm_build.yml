@@ -83,15 +83,8 @@ on:
         default: false
 
 jobs:
-  get-config:
-    uses: ./.github/workflows/file-map.yml
-    with:
-      FILE: ${{ inputs.FILE }}
-    secrets: inherit
-
   build:
-    needs: get-config
-    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}${{ github.event.inputs.ZRAM == 'true' && ' [ZRAM]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
+    name: build_main
     runs-on: ubuntu-latest
     env:
       CPU: ${{ needs.get-config.outputs.CPU }}
