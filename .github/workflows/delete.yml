@@ -15,10 +15,8 @@ on:
         options:
           - Build OnePlus_SukiSU Ultra All
           - KernelSU-Next build
-          - SukiSU Ultra Susfs_nonkpm
-          - SukiSU Ultra Susfs
-          - Origin Build
-          - 重置缓存
+          - Origin Build Merge     
+          - Origin Build        
           - find llvm
       count:
         description: '最多清理的运行次数'
