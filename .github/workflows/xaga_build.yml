@@ -1,4 +1,4 @@
-name: Origin Build
+name: xaga_build
 on:
   workflow_dispatch:
     inputs:
