@@ -228,12 +228,6 @@ jobs:
           echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
           echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
 
-      - name: LLVM latest
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          sudo chmod +x llvm.sh
-          sudo ./llvm.sh 20 all
-
       - name: Restore Ccache
         uses: actions/cache@v3
         with:
@@ -275,7 +269,8 @@ jobs:
           rm -rf common .repo
 
           git clone --depth 1 https://github.com/xiaomi-mediatek-devs/android_kernel_xiaomi_mt6895 -b lineage-22.2 common
-          cd common; git log; cd  ..
+          cd common; git log; cd  ..; pwd; ls
+          cd  ..; pwd; ls
           if [  -e kernel_platform/common/BUILD.bazel ]; then
           sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
           fi
@@ -643,6 +638,7 @@ jobs:
           # 安装依赖工具
           sudo apt install -y libelf-dev ccache lld
           cd kernel_workspace/kernel_platform
+          sed -i 's#/$(MALI_PLATFORM_DIR)/#/mt6895/#g' common/drivers/gpu/mediatek/mali-valhall/gpu/arm/midgard/Makefile
           LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           # cd kernel_workspace/kernel_platform/common
           # export PATH="/usr/lib/llvm-20/bin:$PATH"
