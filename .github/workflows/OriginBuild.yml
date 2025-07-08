@@ -184,36 +184,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-apt-
 
-      # - name: Install Dependencies
-        # run: |
-          # sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock
-          # APT_CACHE_DIR="$HOME/apt-cache"
-          # mkdir -p "$APT_CACHE_DIR/lists/partial"
-          # sudo apt -o Dir::Cache="$APT_CACHE_DIR" update -qq
-          # sudo DEBIAN_FRONTEND=noninteractive apt -o Dir::Cache="$APT_CACHE_DIR" install -yq --no-install-recommends \
-            # python3 git curl ccache libelf-dev \
-            # build-essential flex bison libssl-dev \
-            # libncurses-dev liblz4-tool zlib1g-dev \
-            # libxml2-utils rsync unzip curl bison flex \
-            # make binutils dwarves git lld pahole zip \
-            # perl make gcc python3 python-is-python3 \
-            # bc libssl-dev libelf-dev clang wget cmake python3 \
-            # clang cmake make llvm wget        
-          # sudo DEBIAN_FRONTEND=noninteractive apt -o Dir::Cache="$APT_CACHE_DIR" install -yq --no-install-recommends \
-            # lsb-release linux-modules-extra-"$(uname -r)" ccache pahole \
-            # git automake flex bison build-essential zlib1g-dev make \
-            # libelf-dev libssl-dev openssl bc device-tree-compiler gzip \
-            # python3-telethon python-is-python3 zip unzip zstd libzstd-dev pigz \
-            # libncurses-dev asciidoc dos2unix lz4 fakeroot python3 python3-pip \
-            # gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf \
-            # libc6-dev-armel-cross libc6-dev-armhf-cross libc6-dev-arm64-cross
-          # sudo -E apt-get clean
-          # df -h
-
-      - name: Install Toolchain
+      - name: Install Dependencies
         run: |
-          sudo -E apt-get update
-          sudo -E apt-get install --no-install-recommends -y \
+          sudo rm -f /var/lib/apt/lists/lock /var/lib/dpkg/lock
+          APT_CACHE_DIR="$HOME/apt-cache"
+          mkdir -p "$APT_CACHE_DIR/lists/partial"
+          sudo apt -o Dir::Cache="$APT_CACHE_DIR" update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt -o Dir::Cache="$APT_CACHE_DIR" install -yq --no-install-recommends \
+            python3 git curl ccache libelf-dev \
+            build-essential flex bison libssl-dev \
+            libncurses-dev liblz4-tool zlib1g-dev \
+            libxml2-utils rsync unzip curl bison flex \
+            make binutils dwarves git lld pahole zip \
+            perl make gcc python3 python-is-python3 \
+            bc libssl-dev libelf-dev clang wget cmake python3 \
+            clang cmake make llvm wget
+          sudo DEBIAN_FRONTEND=noninteractive apt -o Dir::Cache="$APT_CACHE_DIR" install -yq --no-install-recommends \
             lsb-release linux-modules-extra-"$(uname -r)" ccache pahole \
             git automake flex bison build-essential zlib1g-dev make \
             libelf-dev libssl-dev openssl bc device-tree-compiler gzip \
