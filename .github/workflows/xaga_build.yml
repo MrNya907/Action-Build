@@ -268,11 +268,14 @@ jobs:
         run: |
           mkdir kernel_workspace && cd kernel_workspace
           mkdir kernel_platform && cd kernel_platform
-          git clone --depth 1 https://github.com/xiaomi-mediatek-devs/android_kernel_xiaomi_mt6895 -b lineage-22.2 common
-          cd common; git log; cd  ..
-          cd  ..
           # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10
+          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          rm -rf common .repo
+
+          git clone --depth 1 https://github.com/xiaomi-mediatek-devs/android_kernel_xiaomi_mt6895 -b lineage-22.2 common
+          cd common; git log; cd  ..
           if [  -e kernel_platform/common/BUILD.bazel ]; then
           sed -i '/^[[:space:]]*"protected_exports_list"[[:space:]]*:[[:space:]]*"android\/abi_gki_protected_exports_aarch64",$/d' kernel_platform/common/BUILD.bazel
           fi
@@ -639,14 +642,15 @@ jobs:
 
           # 安装依赖工具
           sudo apt install -y libelf-dev ccache lld
-
-          cd kernel_workspace/kernel_platform/common
+          cd kernel_workspace/kernel_platform
+          LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+          # cd kernel_workspace/kernel_platform/common
           # export PATH="/usr/lib/llvm-20/bin:$PATH"
-          make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
+          # make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
           for i in $(find  . -type f -name ".config"); do
              cp $i  ../../../config.txt
           done
-          make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
+          # make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
 
           # 显示 ccache 统计信息
           ccache -s
@@ -672,7 +676,7 @@ jobs:
           mkdir -p kernel_workspace/kernel_platform/out/FinalImageFind/
           dir1=""
           dir2=""
-          image_path=$(find "./kernel_workspace/kernel_platform/common/out/" -name "Image" | head -n 1)
+          image_path=$(find "./kernel_workspace/kernel_platform/" -name "Image" | head -n 1)
           if [ -n "$image_path" ]; then
             dir1=$(dirname "$image_path")/
             echo "使用 make 编译的统一路径，成功找到 Image 文件"
