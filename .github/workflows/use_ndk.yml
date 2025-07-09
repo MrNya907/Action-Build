@@ -662,11 +662,13 @@ jobs:
 
           cd kernel_workspace/kernel_platform/common
           for i in $(find  ..  -name "clang"); do
-            echo $(realpath $i)
+            echo " 当前目录:$(pwd)"
+            echo "找到clang: $(realpath $i)"
           done
           
           for i in $(find  ../..  -name "clang"); do
-            echo $(realpath $i)
+            echo " 当前目录:$(pwd)"
+            echo "找到clang: $(realpath $i)"
           done
           MAKE_ARGS="LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
