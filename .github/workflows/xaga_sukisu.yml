@@ -1,4 +1,4 @@
-name: xaga_build
+name: xaga_sukisu
 on:
   workflow_dispatch:
     inputs:

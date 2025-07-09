@@ -1,4 +1,4 @@
-name: xaga_build
+name: xaga_mksu
 on:
   workflow_dispatch:
     inputs:

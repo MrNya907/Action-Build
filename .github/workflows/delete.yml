@@ -17,7 +17,8 @@ on:
           - KernelSU-Next build
           - find llvm
           - llvm_build
-          - xaga_build
+          - xaga_mksu
+          - xaga_sukisu
           - repo_build
       count:
         description: '最多清理的运行次数'
