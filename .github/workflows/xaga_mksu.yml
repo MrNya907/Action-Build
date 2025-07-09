@@ -555,10 +555,10 @@ jobs:
           # Inline zram
           sed -i '/CONFIG_ZSMALLOC/d' "$CONFIG_FILE"
           sed -i '/CONFIG_ZRAM/d' "$CONFIG_FILE"
-          echo "CONFIG_ZSMALLOC=y" >> "$CONFIG_FILE"
-          echo "CONFIG_ZRAM=y" >> "$CONFIG_FILE"
-          echo "CONFIG_ZRAM_DEF_COMP_ZSTD=y" >> "$CONFIG_FILE"
-          echo "CONFIG_ZRAM_DEF_COMP=\"zstd\"" >> "$CONFIG_FILE"
+          echo "CONFIG_ZSMALLOC=n" >> "$CONFIG_FILE"
+          echo "CONFIG_ZRAM=n" >> "$CONFIG_FILE"
+          # echo "CONFIG_ZRAM_DEF_COMP_ZSTD=y" >> "$CONFIG_FILE"
+          # echo "CONFIG_ZRAM_DEF_COMP=\"zstd\"" >> "$CONFIG_FILE"
 
           # walt scheduler
           # 不用开启，开启后无法开机
