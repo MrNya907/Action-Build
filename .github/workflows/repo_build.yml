@@ -65,7 +65,7 @@ on:
         type: boolean
         description: "是否启用内核模块(KPM)？"
         required: true
-        default: false
+        default: true
       SUSFS_ENABLE:
         type: boolean
         description: "开启susfs"
