@@ -180,7 +180,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/apt-cache
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/OriginBuild.yml') }}
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/xaga_sukisu.yml') }}
           restore-keys: |
             ${{ runner.os }}-apt-
 
@@ -268,7 +268,7 @@ jobs:
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           rm -rf common .repo
 
-          git clone --depth 1 https://github.com/xiaomi-mediatek-devs/android_kernel_xiaomi_mt6895 -b lineage-22.2 common
+          git clone --depth 1 https://github.com/reigadegr/android_kernel_xiaomi_mt6895 -b lineage-22.2 common
           cd common; git log; cd  ..; pwd; ls
           cd  ..; pwd; ls
           if [  -e kernel_platform/common/BUILD.bazel ]; then
@@ -384,15 +384,15 @@ jobs:
         run: |
           cd kernel_workspace/kernel_platform
           if [ "${{ github.event.inputs.SUSFS_ENABLE }}" = "true" ]; then
-            curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash -s main
+            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
           else
-            curl -LSs "https://raw.githubusercontent.com/5ec1cff/KernelSU/main/kernel/setup.sh" | bash -s main
+            curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
           fi
-          cd ./KernelSU*
+          cd ./KernelSU
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           export KSU_VERSION=$KSU_VERSION
-          # sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
+          sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
       - name: Apply Patches SukiSU Ultra
         run: |
@@ -444,22 +444,22 @@ jobs:
               echo "susfs_patch完成"
           fi
 
-      # - name: Apply Hide Stuff Patches
-        # run: |
-          # cd kernel_workspace/kernel_platform/common
-          # cp ../../SukiSU_patch/69_hide_stuff.patch ./
-          # echo "正在打隐藏应用补丁"
-          # patch -p1 -F 3 < 69_hide_stuff.patch
-          # echo "隐藏应用_patch完成"
+      - name: Apply Hide Stuff Patches
+        run: |
+          cd kernel_workspace/kernel_platform/common
+          cp ../../SukiSU_patch/69_hide_stuff.patch ./
+          echo "正在打隐藏应用补丁"
+          patch -p1 -F 3 < 69_hide_stuff.patch
+          echo "隐藏应用_patch完成"
 
-      # - name: Apply VFS
-        # if: ${{ github.event.inputs.VFS == 'true' }}
-        # run: |
-          # cd kernel_workspace/kernel_platform/common
-            # cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
-            # echo "正在打vfs补丁"
-            # patch -p1 -F 3 < syscall_hooks.patch
-            # echo "vfs_patch完成"
+      - name: Apply VFS
+        if: ${{ github.event.inputs.VFS == 'true' }}
+        run: |
+          cd kernel_workspace/kernel_platform/common
+            cp ../../SukiSU_patch/hooks/syscall_hooks.patch ./
+            echo "正在打vfs补丁"
+            patch -p1 -F 3 < syscall_hooks.patch
+            echo "vfs_patch完成"
 
       # - name: Apply ZRAM
         # if: ${{ github.event.inputs.ZRAM == 'true' }}
@@ -482,41 +482,41 @@ jobs:
           KERNEL_VERSION="${{ needs.get-config.outputs.KERNEL_VERSION }}"
 
           # SukiSU Ultra配置
-          # echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
-          # if [ "${{ github.event.inputs.KPM }}" = 'true' ]; then
-            # echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
-            # echo "开启kpm"
-          # else
-            # echo "CONFIG_KPM=n" >> "$CONFIG_FILE"
-            # echo "关闭kpm"
-          # fi
-          # # VFS配置
-          # if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
-            # echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
-            # echo "CONFIG_KSU_MANUAL_HOOK=y" >> "$CONFIG_FILE"
-          # else
-            # echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> "$CONFIG_FILE"
-            # echo "CONFIG_KPROBES=y" >> "$CONFIG_FILE"
-          # fi
+          echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
+          if [ "${{ github.event.inputs.KPM }}" = 'true' ]; then
+            echo "CONFIG_KPM=y" >> "$CONFIG_FILE"
+            echo "开启kpm"
+          else
+            echo "CONFIG_KPM=n" >> "$CONFIG_FILE"
+            echo "关闭kpm"
+          fi
+          # VFS配置
+          if [ "${{ github.event.inputs.VFS }}" = "true" ]; then
+            echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "$CONFIG_FILE"
+            echo "CONFIG_KSU_MANUAL_HOOK=y" >> "$CONFIG_FILE"
+          else
+            echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> "$CONFIG_FILE"
+            echo "CONFIG_KPROBES=y" >> "$CONFIG_FILE"
+          fi
 
-          # # SUSFS配置
-          # if [ "${{ github.event.inputs.SUSFS_ENABLE }}" = "true" ]; then
-              # echo "CONFIG_KSU_SUSFS=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> "$CONFIG_FILE"
-              # echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> "$CONFIG_FILE"
-          # fi
+          # SUSFS配置
+          if [ "${{ github.event.inputs.SUSFS_ENABLE }}" = "true" ]; then
+              echo "CONFIG_KSU_SUSFS=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> "$CONFIG_FILE"
+              echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> "$CONFIG_FILE"
+          fi
           # TMPFS配置*
           echo "CONFIG_TMPFS_XATTR=y" >> "$CONFIG_FILE"
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> "$CONFIG_FILE"
