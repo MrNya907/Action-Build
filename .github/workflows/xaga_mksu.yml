@@ -645,7 +645,7 @@ jobs:
           # export PATH="/usr/lib/llvm-20/bin:$PATH"
           # make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" gki_defconfig 2>&1 | tee  ../../../pre_build.txt
           for i in $(find  . -type f -name ".config"); do
-             cp $i  ../../../config.txt
+             cp $i  ../../config.txt
           done
           # make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
 
