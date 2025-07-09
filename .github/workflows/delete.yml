@@ -15,12 +15,10 @@ on:
         options:
           - Build OnePlus_SukiSU Ultra All
           - KernelSU-Next build
-          - Origin Build Merge     
-          - Origin Build        
           - find llvm
           - llvm_build
           - xaga_build
-          - use_ndk
+          - repo_build
       count:
         description: '最多清理的运行次数'
         required: false
