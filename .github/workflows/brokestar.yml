@@ -1,4 +1,4 @@
-name: use_ndk
+name: brokestar
 on:
   workflow_dispatch:
     inputs:
@@ -171,7 +171,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/apt-cache
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/use_ndk.yml') }}
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/brokestar.yml') }}
           restore-keys: |
             ${{ runner.os }}-apt-
 
@@ -256,7 +256,7 @@ jobs:
           repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           rm -rf common .repo
-          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13 common
+          git clone --depth 1 https://github.com/brokestar233/android_kernel_common_oneplus_sm8750 -b v5 common
           cd common; git log; cd  ..
           cd  ..
           # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
