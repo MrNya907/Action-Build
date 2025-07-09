@@ -19,6 +19,7 @@ on:
           - Origin Build        
           - find llvm
           - xaga_build
+          - use_ndk
       count:
         description: '最多清理的运行次数'
         required: false
