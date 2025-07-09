@@ -8,31 +8,7 @@ on:
         required: true
         default: oneplus_10_pro_v
         options:
-          - oneplus_nord_ce4_v
-          - oneplus_ace_3v_v
-          - oneplus_nord_4_v
           - oneplus_10_pro_v
-          - oneplus_10t_v
-          - oneplus_11r_v
-          - oneplus_ace2_v
-          - oneplus_ace_pro_v
-          - oneplus_11_v
-          - oneplus_12r_v
-          - oneplus_ace2_pro_v
-          - oneplus_ace3_v
-          - oneplus_open_v
-          - oneplus12_v
-          - oneplus_13r
-          - oneplus_ace3_pro_v
-          - oneplus_ace5
-          - oneplus_pad2_v
-          - oneplus_pad_pro_v
-          - oneplus_13
-          - oneplus_ace5_pro
-          - oneplus_13t
-          - oneplus_13s
-          - oneplus_pad_2_pro
-          - oneplus_pad_3
       BUILD_METHOD:
         type: choice
         description: "编译方式"
@@ -65,7 +41,7 @@ on:
         type: boolean
         description: "是否启用内核模块(KPM)？"
         required: true
-        default: false
+        default: true
       SUSFS_ENABLE:
         type: boolean
         description: "开启susfs"
@@ -75,7 +51,7 @@ on:
         type: boolean
         description: "是否添加风驰驱动？"
         required: true
-        default: true
+        default: false
       ZRAM:
         type: boolean
         description: "是否添加更多的ZRAM算法？"
