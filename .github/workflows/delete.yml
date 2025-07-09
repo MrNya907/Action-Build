@@ -18,6 +18,7 @@ on:
           - Origin Build Merge     
           - Origin Build        
           - find llvm
+          - llvm_build
           - xaga_build
           - use_ndk
       count:
