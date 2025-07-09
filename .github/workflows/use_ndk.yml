@@ -658,7 +658,7 @@ jobs:
           # 安装依赖工具
           sudo apt install -y libelf-dev ccache lld
           cd kernel_workspace/kernel_platform/common
-          export CC="ccache clang"
+          export CC="ccache clang" LTO=thin
           MAKE_ARGS="LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
