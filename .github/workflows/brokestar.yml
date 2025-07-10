@@ -1,4 +1,4 @@
-name: gki_debug
+name: brokestar
 on:
   workflow_dispatch:
     inputs:
@@ -200,7 +200,7 @@ jobs:
           repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           rm -rf .repo common
-          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b merge common       
+          git clone --depth 1 https://github.com/brokestar233/android_kernel_common_oneplus_sm8750 -b v5 common       
           cd common; git log; rm -rf .git; cd  ..
           # cp -rf common2/* common
           # cp -rf common2/.* common
