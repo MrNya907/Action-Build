@@ -13,10 +13,7 @@ on:
         required: true
         default: 'Build OnePlus_SukiSU Ultra All'
         options:
-          - use_ndk
-          - KernelSU-Next build
-          - find llvm
-          - llvm_build
+          - find llvm          
           - xaga_mksu
           - xaga_sukisu
           - repo_build
