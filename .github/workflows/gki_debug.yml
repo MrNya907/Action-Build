@@ -205,9 +205,11 @@ jobs:
           mkdir kernel_platform && cd kernel_platform
           repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-${{ needs.get-config.outputs.ANDROID_VERSION }}-${{ needs.get-config.outputs.KERNEL_VERSION }}
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
-          rm -rf common .repo
-          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b merge common
-          cd common; git log; cd  ..
+          rm -rf .repo
+          git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b merge common2          
+          cd common2; git log; rm -rf .git; cd  ..
+          cp -rf common2/* common
+          rm -rf common2
           cd  ..
           # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
