@@ -614,6 +614,14 @@ jobs:
           for i in $(find  . -type f -name ".config"); do
              cp $i  ../../config.txt
           done
+          
+          for i in $(find  . -type f -name "*zstd*ko"); do
+             cp $i  ../../zram.ko
+          done
+          
+          for i in $(find  . -type f -name "*zsmalloc*ko"); do
+             cp $i  ../../zsmalloc.ko
+          done
           # make -j$(nproc --all) LLVM=1 LLVM_IAS=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+="-Wno-error -O2" 2>&1 | tee  ../../../build.txt
 
           # 显示 ccache 统计信息
@@ -637,6 +645,7 @@ jobs:
           rm -rf ./AnyKernel3/.git
           cp *build.txt ./AnyKernel3 || echo "复制log失败"
           cp config.txt ./AnyKernel3 || echo "复制config失败"
+          cp *ko  ./AnyKernel3 || echo "复制ko失败"
           mkdir -p kernel_workspace/kernel_platform/out/FinalImageFind/
           dir1=""
           dir2=""
