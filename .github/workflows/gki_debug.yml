@@ -47,11 +47,6 @@ on:
         description: "开启susfs"
         required: true
         default: true
-      SCHED:
-        type: boolean
-        description: "是否添加风驰驱动？"
-        required: true
-        default: true
       COMMIT:
         type: string
         description: "提交哈希值"
@@ -67,7 +62,7 @@ jobs:
 
   build:
     needs: get-config
-    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}${{ github.event.inputs.SCHED == 'true' && ' [SCHED]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
+    name: ${{ github.event.inputs.FAST_BUILD == 'true' && ' [FAST]' || '' }}For ${{ github.event.inputs.FILE }} ${{ github.event.inputs.BUILD_METHOD }} ${{ github.event.inputs.SUFFIX }}
     runs-on: ubuntu-latest
     env:
       CPU: ${{ needs.get-config.outputs.CPU }}
@@ -113,7 +108,6 @@ jobs:
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected KPM: ${{ github.event.inputs.KPM }}"
           echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}" 
-          echo "Selected SCHED: ${{ github.event.inputs.SCHED }}"
 
       - name: Setup TimeZone
         run: |
@@ -535,16 +529,6 @@ jobs:
           # 移除构建审查
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
-      # 风驰内核，以 sm8750 为主体，其他 CPU 可能无效或者无法跑出
-      - name: Add sched_ext
-        if: ${{ github.event.inputs.SCHED == 'true' }}
-        run: |
-         cd kernel_workspace/kernel_platform/
-         git clone https://github.com/HanKuCha/sched_ext.git
-         cp -r ./sched_ext/* ./common/kernel/sched
-         rm -rf ./sched_ext/.git
-         cd common/kernel/sched
-
       # 自定义内核构建时间，无需加入多余的时间前缀
       - name: Custom BUILD_TIME
         shell: bash
@@ -667,7 +651,7 @@ jobs:
       - name: Set zip Suffix
         id: suffix
         run: |
-          echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
+          echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}" >> $GITHUB_OUTPUT
 
       # 从一加源码中获取适用的 Android 版本信息，注意是系统 Android 版本而非你填写的内核 Android 版本，非一加官方源码可能需要修改或删除这一步
       - name: Auto map FILE to Android version by manifest
