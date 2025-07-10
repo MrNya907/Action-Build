@@ -183,7 +183,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.event.inputs.FILE }}-${{ github.event.inputs.BUILD_METHOD }}-${{ github.event.inputs.FAST_BUILD == 'true' && 'fast' || 'slow' }}-${{ github.event.inputs.KPM == 'true' && 'kpm' || 'nonkpm' }}-${{ github.event.inputs.SUSFS_ENABLE == 'true' && 'susfs' || 'nonsusfs' }}-ndk
+          key: ccache-gki_debug
 
       - name: Initialize Ccache
         run: |
