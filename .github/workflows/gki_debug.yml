@@ -108,6 +108,7 @@ jobs:
           echo "Selected VFS: ${{ github.event.inputs.VFS }}"
           echo "Selected KPM: ${{ github.event.inputs.KPM }}"
           echo "Selected FAST_BUILD: ${{ github.event.inputs.FAST_BUILD }}" 
+          echo "Selected COMMIT: ${{ github.event.inputs.COMMIT }}" 
 
       - name: Setup TimeZone
         run: |
