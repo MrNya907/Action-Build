@@ -17,6 +17,7 @@ on:
           - xaga_mksu
           - xaga_sukisu
           - repo_build
+          - gki_debug
       count:
         description: '最多清理的运行次数'
         required: false
