@@ -46,7 +46,7 @@ on:
         type: boolean
         description: "开启susfs"
         required: true
-        default: true
+        default: false
       COMMIT:
         type: string
         description: "提交哈希值"
