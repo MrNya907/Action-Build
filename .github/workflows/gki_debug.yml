@@ -201,7 +201,7 @@ jobs:
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           rm -rf .repo common
           git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b merge common       
-          cd common; git log; rm -rf .git; cd  ..
+          cd common; git log; cd  ..
           # cp -rf common2/* common
           # cp -rf common2/.* common
           # rm -rf common2
