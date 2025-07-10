@@ -180,7 +180,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/apt-cache
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/xaga_mksu.yml') }}
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/xaga_mksu_fer.yml') }}
           restore-keys: |
             ${{ runner.os }}-apt-
 
