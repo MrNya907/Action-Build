@@ -36,7 +36,7 @@ on:
         type: boolean
         description: "是否启用手动钩子(VFS)？"
         required: true
-        default: false
+        default: true
       KPM:
         type: boolean
         description: "是否启用内核模块(KPM)？"
@@ -202,9 +202,6 @@ jobs:
           rm -rf .repo common
           git clone --depth 1 https://github.com/reigadegr/android_kernel_common_oneplus_sm8750 -b merge common       
           cd common; git log; cd  ..
-          # cp -rf common2/* common
-          # cp -rf common2/.* common
-          # rm -rf common2
           cd  ..
           # repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b refs/heads/oneplus/${{ needs.get-config.outputs.CPU }} -m ${{ github.event.inputs.FILE }}.xml --depth=1
           # repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
@@ -408,19 +405,6 @@ jobs:
             echo "正在打vfs补丁"
             patch -p1 -F 3 < syscall_hooks.patch
             echo "vfs_patch完成"
-
-      # - name: Apply ZRAM
-        # if: ${{ github.event.inputs.ZRAM == 'true' }}
-        # run: |
-          # cd kernel_workspace/kernel_platform/common
-            # cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4kd.patch ./
-            # echo "正在打lz4kd补丁"
-            # patch -p1 -F 3 < lz4kd.patch || true
-            # echo 'lz4kd_patch完成'
-            # cp ../../SukiSU_patch/other/zram/zram_patch/${{ needs.get-config.outputs.KERNEL_VERSION }}/lz4k_oplus.patch ./
-            # echo "正在打lz4k_oplus补丁"
-            # patch -p1 -F 3 < lz4k_oplus.patch || true
-            # echo 'lz4k_oplus_patch完成'
 
       - name: Remove OnePlus Kernel Module
         run: |          
